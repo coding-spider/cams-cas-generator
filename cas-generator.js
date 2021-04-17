@@ -66,9 +66,10 @@ debug(`headless: %s`, headless);
 (async () => {
 
   const browser = await puppeteer.launch({
-    headless: headless
+    headless: headless,
+    devtools: !headless
   });
-  const page = await browser.newPage();
+  let page = await browser.newPage();
   await page.goto(URL, { waitUntil: 'load', timeout: 0 });
 
   // Accept the cookie dialog
@@ -84,8 +85,12 @@ debug(`headless: %s`, headless);
   }
   await page.waitForTimeout(1000);
 
+  // Small hack
+  page = await browser.newPage();
+  await page.goto(URL, { waitUntil: 'load', timeout: 0 });
+
   // Statement Type
-  const statementTypeRadioDetailedSelector = '#mat-radio-6 > label';
+  const statementTypeRadioDetailedSelector = '#mat-radio-3 > label';
   await page.waitForSelector(statementTypeRadioDetailedSelector);
   const statementTypeRadioDetailed = await page.$(statementTypeRadioDetailedSelector);
   if(statementTypeRadioDetailed) {
@@ -94,7 +99,7 @@ debug(`headless: %s`, headless);
   }
 
   // Period
-  const periodRadioSpecificPeriodSelector = '#mat-radio-14 > label';
+  const periodRadioSpecificPeriodSelector = '#mat-radio-11 > label';
   await page.waitForSelector(periodRadioSpecificPeriodSelector);
   const periodRadioSpecificPeriod = await page.$(periodRadioSpecificPeriodSelector);
   if(periodRadioSpecificPeriod) {
@@ -134,7 +139,7 @@ debug(`headless: %s`, headless);
   }
 
   // Folio Listing
-  const folioListingRadioWithZeroBalancedFolioSelector = '#mat-radio-8 > label';
+  const folioListingRadioWithZeroBalancedFolioSelector = '#mat-radio-6 > label';
   await page.waitForSelector(folioListingRadioWithZeroBalancedFolioSelector);
   const folioListingRadioWithZeroBalancedFolio = await page.$(folioListingRadioWithZeroBalancedFolioSelector);
   if(folioListingRadioWithZeroBalancedFolio) {

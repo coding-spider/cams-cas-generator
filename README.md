@@ -1,4 +1,4 @@
-# This is used for triggring CAS statement from CAMS website
+# This is used for triggering CAS statement from CAMS website
 
 It uses puppeteer for automating the statement generation process
 

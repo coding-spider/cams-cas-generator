@@ -14,12 +14,12 @@ let {email, password, fromDate, toDate, headless} = argv;
 
 debug(emoji.emojify(`:smiling_imp: Running in Debug Mode!`));
 
-const URL = 'https://new.camsonline.com/Investors/Statements/Consolidated-Account-Statement';
+const URL = 'https://www.camsonline.com/Investors/Statements/Consolidated-Account-Statement';
 
 if (!validateEmail(email)) {
   exitWithError(new Error(`Invalid Email!`));
 }
- 
+
 //password constraint min 8 char, 1 special char, 1 upper case letter
 if (!validatePassword(password)) {
   exitWithError(new Error(`Invalid Password! Password should contain atleat 8 chars, 1 special char and 1 upper case letter!`));
@@ -73,16 +73,23 @@ debug(`headless: %s`, headless);
   await page.goto(URL, { waitUntil: 'load', timeout: 0 });
 
   // Accept the cookie dialog
-  const radioAccept = await page.$('#mat-radio-2');
-  if (radioAccept) {
-    radioAccept.click();
-
-    const btnProceed = await page.$('#mat-dialog-0 > app-camsterms > div > mat-dialog-content > div.button-row.mt-bottom.text-center > input');
-    if(btnProceed) {
-      btnProceed.click();
-      debug(emoji.emojify(`:pushpin: Cookies Accepted`));
-    }
+  const radioAcceptSelector = '#mat-radio-9';
+  await page.waitForSelector(radioAcceptSelector);
+  const radioAccept = await page.$(radioAcceptSelector);
+  if (!radioAccept) {
+    exitWithError(new Error(`radioAccept not found!`));
   }
+  await radioAccept.click();
+
+  const btnProceedSelector = 'input[type="button"][value="PROCEED"]';
+  await page.waitForSelector(btnProceedSelector);
+  const btnProceed = await page.$(btnProceedSelector);
+  if (!btnProceed) {
+    exitWithError(new Error(`btnProceed not found!`));
+  }
+  await btnProceed.click();
+
+  debug(emoji.emojify(`:pushpin: Cookies Accepted`));
   await page.waitForTimeout(1000);
 
   // Small hack
@@ -94,7 +101,7 @@ debug(`headless: %s`, headless);
   await page.waitForSelector(statementTypeRadioDetailedSelector);
   const statementTypeRadioDetailed = await page.$(statementTypeRadioDetailedSelector);
   if(statementTypeRadioDetailed) {
-    statementTypeRadioDetailed.click();
+    await statementTypeRadioDetailed.click();
     debug(emoji.emojify(`:pushpin: Statement Type Selected`));
   }
 
@@ -103,7 +110,7 @@ debug(`headless: %s`, headless);
   await page.waitForSelector(periodRadioSpecificPeriodSelector);
   const periodRadioSpecificPeriod = await page.$(periodRadioSpecificPeriodSelector);
   if(periodRadioSpecificPeriod) {
-    periodRadioSpecificPeriod.click();
+    await periodRadioSpecificPeriod.click();
     debug(emoji.emojify(`:pushpin: Period Selected`));
   }
 
@@ -121,7 +128,7 @@ debug(`headless: %s`, headless);
     await page.keyboard.type(fromDate, {delay:20});
     debug(emoji.emojify(`:pushpin: From Date Selected`));
   }
-  
+
 
   // Select ToDate
   const toDateSelector = '#mat-input-6';
@@ -142,8 +149,8 @@ debug(`headless: %s`, headless);
   const folioListingRadioWithZeroBalancedFolioSelector = '#mat-radio-6 > label';
   await page.waitForSelector(folioListingRadioWithZeroBalancedFolioSelector);
   const folioListingRadioWithZeroBalancedFolio = await page.$(folioListingRadioWithZeroBalancedFolioSelector);
-  if(folioListingRadioWithZeroBalancedFolio) {
-    folioListingRadioWithZeroBalancedFolio.click();
+  if (folioListingRadioWithZeroBalancedFolio) {
+    await folioListingRadioWithZeroBalancedFolio.click();
     debug(emoji.emojify(`:pushpin: Folio Listing Selected`));
   }
 
@@ -157,7 +164,7 @@ debug(`headless: %s`, headless);
     await page.$eval(inputEmailSelector, e => e.blur());
     debug(emoji.emojify(`:pushpin: Email Entered`));
   }
-  
+
   // This wait is for service call
   await page.waitForTimeout(1000);
 
@@ -186,7 +193,7 @@ debug(`headless: %s`, headless);
   await page.waitForSelector(btnSubmitSelector);
   const btnSubmit = await page.$(btnSubmitSelector);
   if(btnSubmit) {
-    btnSubmit.click();
+    await btnSubmit.click();
     console.log(emoji.emojify(`:white_check_mark: *** Form Submitted`));
   }
 
